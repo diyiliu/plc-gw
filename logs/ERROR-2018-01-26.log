@@ -1,0 +1,4 @@
+[ERROR] [2018-01-26 16:19:06] com.tiza.gw.handler.codec.DtuDecoder[72] - CRC校验码错误!
+[ERROR] [2018-01-26 16:22:40] com.tiza.gw.handler.codec.DtuDecoder[72] - CRC校验码错误!
+[ERROR] [2018-01-26 16:26:34] com.tiza.gw.handler.codec.DtuDecoder[76] - CRC校验码错误, 断开连接!
+[ERROR] [2018-01-26 16:27:11] com.tiza.gw.handler.codec.DtuDecoder[76] - CRC校验码错误, 断开连接!
