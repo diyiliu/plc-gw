@@ -83,6 +83,9 @@ public class DtuDecoder extends ByteToMessageDecoder {
             byte crc0 = in.readByte();
             byte crc1 = in.readByte();
 
+            logger.info("收到设备[{}]数据[{}]...", deviceId,
+                    CommonUtil.bytesToString(Unpooled.copiedBuffer(bytes, new byte[]{crc0, crc1}).array()));
+
             byte[] checkCRC = CommonUtil.checkCRC(bytes);
             if (crc0 != checkCRC[0] || crc1 != checkCRC[1]) {
                 logger.error("CRC校验码错误, 断开连接!");
@@ -90,7 +93,6 @@ public class DtuDecoder extends ByteToMessageDecoder {
                 return;
             }
 
-            logger.info("收到设备[{}]数据[{}]...", deviceId, CommonUtil.bytesToString(bytes));
             out.add(Unpooled.copiedBuffer(bytes));
         }
     }

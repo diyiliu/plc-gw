@@ -23,6 +23,7 @@ dependencies {
     compile group: 'io.netty', name: 'netty-all', version: '4.1.20.Final'
     compile group: 'org.quartz-scheduler', name: 'quartz', version: '2.3.0'
     compile group: 'com.alibaba', name: 'druid', version: '1.1.2'
+    compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.37'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.7'
     compile group: 'commons-collections', name: 'commons-collections', version: '3.2.2'
     compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'

@@ -1,7 +1,10 @@
 package com.tiza.gw.handler;
 
+import com.tiza.protocol.dtu.DtuDataProcess;
 import com.tiza.support.cache.ICache;
 import com.tiza.support.config.Constant;
+import com.tiza.support.model.header.DtuHeader;
+import com.tiza.support.util.CommonUtil;
 import com.tiza.support.util.SpringUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
@@ -46,27 +49,30 @@ public class DtuHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         String deviceId = (String) attribute.get();
+        ICache cmdCacheProvider = SpringUtil.getBean("dtuCMDCacheProvider");
 
         ByteBuf byteBuf = (ByteBuf) msg;
-
-        int addr = byteBuf.readUnsignedByte();
+        int address = byteBuf.readUnsignedByte();
         int code = byteBuf.readUnsignedByte();
 
+        DtuDataProcess dataProcess = (DtuDataProcess) cmdCacheProvider.get(code);
+        if (dataProcess == null){
+            logger.warn("找不到指令[{}]解析器!", CommonUtil.toHex(code));
+
+            return ;
+        }
+
         int length = byteBuf.readUnsignedByte();
-        if (length % 4 != 0) {
+        byte[] bytes = new byte[length];
+        byteBuf.readBytes(bytes);
 
-            return;
-        }
+        DtuHeader dtuHeader = new DtuHeader();
+        dtuHeader.setDeviceId(deviceId);
+        dtuHeader.setAddress(address);
+        dtuHeader.setCode(code);
 
-        int count = length / 4;
-        for (int i = 0; i < count; i++) {
-            int data = byteBuf.readInt();
-            float f = Float.intBitsToFloat(data);
-
-            System.out.println(i + 1 + ":" + f);
-        }
+        dataProcess.parse(bytes, dtuHeader);
     }
-
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {

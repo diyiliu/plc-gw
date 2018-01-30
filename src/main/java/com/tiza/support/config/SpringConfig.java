@@ -2,13 +2,15 @@ package com.tiza.support.config;
 
 import com.tiza.support.cache.ICache;
 import com.tiza.support.cache.ram.RamCacheProvider;
-import com.tiza.support.task.AutoSenderTask;
-import com.tiza.support.task.ITask;
+import com.tiza.support.listener.CMDInitializer;
 import com.tiza.support.util.SpringUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import javax.sql.DataSource;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Description: SpringConfiguration
@@ -16,8 +18,6 @@ import org.springframework.scheduling.annotation.Scheduled;
  * Update: 2018-01-29 10:25
  */
 
-
-@EnableScheduling
 @Configuration
 public class SpringConfig {
 
@@ -33,6 +33,34 @@ public class SpringConfig {
     }
 
     /**
+     * spring jdbcTemplate
+     *
+     * @param dataSource
+     * @return
+     */
+    @Bean
+    public JdbcTemplate jdbcTemplate(DataSource dataSource){
+
+        return new JdbcTemplate(dataSource);
+    }
+
+    /**
+     * 指令初始化
+     *
+     * @return
+     */
+    @Bean
+    public CMDInitializer cmdInitializer(){
+        CMDInitializer cmdInitializer = new CMDInitializer();
+
+        List<Class> protocols = new ArrayList();
+        protocols.add(com.tiza.protocol.dtu.DtuDataProcess.class);
+        cmdInitializer.setProtocols(protocols);
+
+        return cmdInitializer;
+    }
+
+    /**
      * 设备注册缓存
      *
      * @return
@@ -43,26 +71,25 @@ public class SpringConfig {
         return new RamCacheProvider();
     }
 
-
     /**
-     * 读保持寄存器
+     * 指令缓存
      *
      * @return
      */
     @Bean
-    public ITask taskStorage() {
-        int address = 2;
-        int code = 3;
-        int start = 60;
-        int count = 4;
+    public ICache dtuCMDCacheProvider() {
 
-        return new AutoSenderTask(address, code, start, count, onlineCacheProvider());
+        return new RamCacheProvider();
     }
 
+    /**
+     * 数据库设备缓存
+     *
+     * @return
+     */
+    @Bean
+    public ICache deviceCacheProvider() {
 
-    @Scheduled(fixedDelay = 1 * 1000 * 60, initialDelay = 5 * 1000)
-    public void refreshTaskStorage() {
-        ITask task = taskStorage();
-        task.execute();
+        return new RamCacheProvider();
     }
 }
