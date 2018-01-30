@@ -1,6 +1,6 @@
 package com.tiza.support.task;
 
-import com.tiza.support.DeviceDao;
+import com.tiza.support.dao.DeviceDao;
 import com.tiza.support.cache.ICache;
 import com.tiza.support.model.DeviceInfo;
 import org.apache.commons.collections.CollectionUtils;
@@ -33,6 +33,7 @@ public class DeviceInfoTask implements ITask {
 
     @Override
     public void execute() {
+        logger.info("刷新设备列表...");
 
         List<DeviceInfo> list = deviceDao.selectDeviceInfo();
         refresh(list, deviceCache);

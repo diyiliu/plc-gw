@@ -1,8 +1,14 @@
 package com.tiza.protocol.dtu.cmd;
 
 import com.tiza.protocol.dtu.DtuDataProcess;
+import com.tiza.support.model.header.DtuHeader;
 import com.tiza.support.model.header.Header;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Description: CMD_03
@@ -19,7 +25,33 @@ public class CMD_03 extends DtuDataProcess {
 
     @Override
     public void parse(byte[] content, Header header) {
+        DtuHeader dtuHeader = (DtuHeader) header;
+        String[] items = new String[]{
+                "MainCurrent", "PowerSupplyVoltage", "LubricatingOilPressure", "CoolingWaterPressure", "FirstLevelPressure",
+                "SecondLevelPressure", "ThirdLevelPressure", "FourthLevelPressure", "FirstLevelTemperature", "SecondLevelTemperature",
+                "ThirdLevelTemperature", "FourthLevelTemperature", "FirstWaterTemperature", "SecondWaterTemperature", "ThirdWaterTemperature",
+                "FourthWaterTemperature", "LubricatingOilTemperature", "InletWaterTemperature", "InstrumentPressure", "FirstBushingTemperature",
+                "SecondBushingTemperature", "ThirdBushingTemperature", "FourthBushingTemperature", "FifthBushingTemperature", "ShaftExtendTemperature",
+                "ShaftEndTemperature", "FirstStatorTemperature", "SecondStatorTemperature", "ThirdStatorTemperature", "WorkingFrequency"
+        };
+
+        Map paramValues = parseFloat(content, items);
+        updateStatus(dtuHeader, paramValues);
+    }
 
 
+    private Map parseFloat(byte[] bytes, String[] items) {
+        Map map = new HashMap();
+        int count = bytes.length / 4;
+
+        ByteBuf byteBuf = Unpooled.copiedBuffer(bytes);
+        for (int i = 0; i < count; i++) {
+            int data = byteBuf.readInt();
+            float f = Float.intBitsToFloat(data);
+
+            map.put(items[i], f);
+        }
+
+        return map;
     }
 }

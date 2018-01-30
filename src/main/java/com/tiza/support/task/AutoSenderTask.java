@@ -38,6 +38,10 @@ public class AutoSenderTask implements ITask {
     @Override
     public void execute() {
         Set keys = onlineCache.getKeys();
+        if (keys.size() < 1){
+
+            return;
+        }
 
         ByteBuf byteBuf = Unpooled.buffer(6);
         byteBuf.writeByte(queryFrame.getAddress());
@@ -47,7 +51,8 @@ public class AutoSenderTask implements ITask {
         byte[] bytes = byteBuf.array();
 
         logger.info(" 在线终端{}, 下发查询指令, [从站地址:{}, 功能码:{}, 内容:{}]...",
-                onlineCache.getKeys(), queryFrame.getAddress(), queryFrame.getCode(), CommonUtil.bytesToStr(bytes));
+                onlineCache.getKeys(), queryFrame.getAddress(), queryFrame.getCode(),
+                CommonUtil.bytesToStr(Unpooled.copiedBuffer(bytes, CommonUtil.checkCRC(bytes)).array()));
 
         keys.forEach(e -> {
             ChannelHandlerContext context = (ChannelHandlerContext) onlineCache.get(e);

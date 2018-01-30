@@ -70,6 +70,8 @@ public class DtuHandler extends ChannelInboundHandlerAdapter {
         dtuHeader.setDeviceId(deviceId);
         dtuHeader.setAddress(address);
         dtuHeader.setCode(code);
+        dtuHeader.setContent(bytes);
+        dtuHeader.setTime(System.currentTimeMillis());
 
         dataProcess.parse(bytes, dtuHeader);
     }

@@ -24,32 +24,18 @@ public class CMD_01 extends DtuDataProcess {
     @Override
     public void parse(byte[] content, Header header) {
         DtuHeader dtuHeader = (DtuHeader) header;
-
         byte b1 = content[0];
         byte b2 = content[1];
 
         String[] items1 = new String[]{"BypassControlOut","FaultStopOut","OilPumpRunOut","HeatingOut",
                 "LoadValve1Out","LoadValve2Out","FirstPollutionOut","SecondPollutionOut"};
-
         String[] items2 = new String[]{"ThirdPollutionOut","FourthPollutionOut","FirstWaterInletOut","SecondWaterInletOut",
                 "ThirdWaterInletOut","FourthWaterInletOut","StopValveOut","FaultOut"};
 
         Map paramValues = new HashMap();
-
         paramValues.putAll(parseByte(b1, items1));
         paramValues.putAll(parseByte(b2, items2));
 
-
-    }
-
-    private Map parseByte(byte b, String[] items){
-        Map map = new HashMap();
-        for (int i = 0; i < items.length; i++){
-
-            int value = (b >> i) & 0x01;
-            map.put(items[i], value);
-        }
-
-        return map;
+        updateStatus(dtuHeader, paramValues);
     }
 }

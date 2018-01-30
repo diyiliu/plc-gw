@@ -1,10 +1,8 @@
-package com.tiza.support;
+package com.tiza.support.dao;
 
 import com.tiza.support.model.DeviceInfo;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import java.sql.ResultSet;
 import java.util.List;
 
@@ -15,10 +13,7 @@ import java.util.List;
  */
 
 @Component
-public class DeviceDao {
-
-    @Resource
-    private JdbcTemplate jdbcTemplate;
+public class DeviceDao extends BaseDao{
 
     public List<DeviceInfo> selectDeviceInfo() {
         String sql = "SELECT t.Id, t.DtuId FROM equipment t";

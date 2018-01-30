@@ -1,6 +1,6 @@
 package com.tiza.support.config;
 
-import com.tiza.support.DeviceDao;
+import com.tiza.support.dao.DeviceDao;
 import com.tiza.support.cache.ICache;
 import com.tiza.support.model.QueryFrame;
 import com.tiza.support.task.AutoSenderTask;
@@ -68,7 +68,7 @@ public class SpringQuartz {
         QueryFrame queryFrame = new QueryFrame(address, code, start, count);
 
         ITask task = new AutoSenderTask(queryFrame, onlineCacheProvider);
-        task.execute();
+//        task.execute();
     }
 
     /**

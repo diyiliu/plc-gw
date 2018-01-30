@@ -15,6 +15,8 @@ public class DtuHeader extends Header {
 
     private byte[] content = new byte[0];
 
+    private long time;
+
     public String getDeviceId() {
         return deviceId;
     }
@@ -45,5 +47,13 @@ public class DtuHeader extends Header {
 
     public void setContent(byte[] content) {
         this.content = content;
+    }
+
+    public long getTime() {
+        return time;
+    }
+
+    public void setTime(long time) {
+        this.time = time;
     }
 }

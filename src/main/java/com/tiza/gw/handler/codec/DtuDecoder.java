@@ -105,11 +105,16 @@ public class DtuDecoder extends ByteToMessageDecoder {
      * @param context
      */
     private void register(String deviceId, Attribute attribute, ChannelHandlerContext context) {
-        logger.info("设备[{}]注册...", deviceId);
-        attribute.set(deviceId);
-
         // 加入在线列表
-        ICache online = SpringUtil.getBean("onlineCacheProvider");
-        online.put(deviceId, context);
+        ICache device = SpringUtil.getBean("deviceCacheProvider");
+        if (device.containsKey(deviceId)){
+            logger.info("设备[{}]注册...", deviceId);
+
+            attribute.set(deviceId);
+            ICache online = SpringUtil.getBean("onlineCacheProvider");
+            online.put(deviceId, context);
+        }else {
+            logger.warn("设备[{}]不存在!", deviceId);
+        }
     }
 }
