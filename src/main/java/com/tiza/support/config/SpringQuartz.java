@@ -59,7 +59,7 @@ public class SpringQuartz {
     /**
      * 刷新数字量输入数据
      */
-    @Scheduled(fixedDelay = 2 * 1000 * 60, initialDelay = 10 * 1000)
+    @Scheduled(fixedDelay = 1 * 1000 * 60, initialDelay = 10 * 1000)
     public void refreshTaskDigitalInput() {
         int address = 2;
         int code = 2;
@@ -68,13 +68,13 @@ public class SpringQuartz {
         QueryFrame queryFrame = new QueryFrame(address, code, start, count);
 
         ITask task = new AutoSenderTask(queryFrame, onlineCacheProvider);
-//        task.execute();
+        task.execute();
     }
 
     /**
      * 刷新保持寄存器数据
      */
-    @Scheduled(fixedDelay = 3 * 1000 * 60, initialDelay = 15 * 1000)
+    @Scheduled(fixedDelay = 1 * 1000 * 60, initialDelay = 15 * 1000)
     public void refreshTaskStorage() {
         int address = 2;
         int code = 3;

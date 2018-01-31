@@ -103,7 +103,7 @@ CREATE TABLE ServiceAssignment(
 );
 
 CREATE INDEX IX_ServiceAssignment_Staff ON ServiceAssignment (StaffUserId, AssignTime);
-CREATE INDEX IX_ServiceAssignment_CallRepair ServiceAssignment (CallRepairId);
+CREATE INDEX IX_ServiceAssignment_CallRepair ON ServiceAssignment (CallRepairId);
 
 ALTER TABLE ServiceAssignment COMMENT '服务派工单';
 
