@@ -34,6 +34,12 @@
 
     <!-- DTU 网关服务 -->
     <bean class="com.tiza.gw.server.DtuServer" init-method="init">
-        <property name="port" value="5001"/>
+        <property name="port" value="${gw.port}"/>
+    </bean>
+
+    <!-- Kafka 客户端 -->
+    <bean id="kafkaClient" class="com.tiza.support.client.KafkaClient">
+        <constructor-arg name="brokerList" value="${kafka.broker.list}"/>
+        <constructor-arg name="topic" value="${kafka.topic}"/>
     </bean>
 </beans>
