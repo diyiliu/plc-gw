@@ -2,9 +2,8 @@ package com.tiza.gw.handler.codec;
 
 import com.tiza.support.cache.ICache;
 import com.tiza.support.client.KafkaClient;
-import com.tiza.support.util.CommonUtil;
 import com.tiza.support.config.Constant;
-import com.tiza.support.util.JacksonUtil;
+import com.tiza.support.util.CommonUtil;
 import com.tiza.support.util.SpringUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -15,9 +14,7 @@ import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Description: DtuDecoder
@@ -52,7 +49,7 @@ public class DtuDecoder extends ByteToMessageDecoder {
             deviceId = new String(content);
             byte[] bytes = Unpooled.copiedBuffer(new byte[]{b1, b2, b2}, content).array();
             // 写入kafka
-            toKafka(deviceId, bytes);
+            KafkaClient.toKafka(deviceId, bytes);
 
             if (0x40 == b1) {
                 register(deviceId, attribute, ctx);
@@ -92,10 +89,10 @@ public class DtuDecoder extends ByteToMessageDecoder {
             byte crc1 = in.readByte();
 
             byte[] bytes = Unpooled.copiedBuffer(content, new byte[]{crc0, crc1}).array();
-            logger.info("收到设备[{}]原始数据[{}]...", deviceId, CommonUtil.bytesToStr(bytes));
+            //logger.info("收到设备[{}]原始数据[{}]...", deviceId, CommonUtil.bytesToStr(bytes));
 
             // 写入kafka
-            toKafka(deviceId, bytes);
+            KafkaClient.toKafka(deviceId, bytes);
 
             byte[] checkCRC = CommonUtil.checkCRC(content);
             if (crc0 != checkCRC[0] || crc1 != checkCRC[1]) {
@@ -127,21 +124,4 @@ public class DtuDecoder extends ByteToMessageDecoder {
         online.put(deviceId, context);
     }
 
-    /**
-     * 存入kafka原始指令
-     *
-     * @param deviceId
-     * @param bytes
-     */
-    private void toKafka(String deviceId, byte[] bytes) {
-        logger.info("设备[{}]原始数据写入kafka...", deviceId);
-
-        Map map = new HashMap();
-        map.put("id", deviceId);
-        map.put("timestamp", System.currentTimeMillis());
-        map.put("data", CommonUtil.bytesToStr(bytes));
-
-        KafkaClient kafkaClient = SpringUtil.getBean("kafkaClient");
-        kafkaClient.sendMessage(JacksonUtil.toJson(map));
-    }
 }

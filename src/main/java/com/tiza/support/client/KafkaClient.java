@@ -1,10 +1,17 @@
 package com.tiza.support.client;
 
+import com.tiza.support.util.CommonUtil;
+import com.tiza.support.util.JacksonUtil;
+import com.tiza.support.util.SpringUtil;
 import kafka.javaapi.producer.Producer;
 import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
 import kafka.serializer.StringEncoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -14,6 +21,8 @@ import java.util.Properties;
  */
 
 public class KafkaClient {
+    private static Logger logger = LoggerFactory.getLogger(KafkaClient.class);
+
     private final Producer<Integer, String> producer;
     private String topic;
 
@@ -32,5 +41,23 @@ public class KafkaClient {
 
     public void sendMessage(String msg){
         producer.send(new KeyedMessage(topic, msg));
+    }
+
+    /**
+     * 存入kafka原始指令
+     *
+     * @param deviceId
+     * @param bytes
+     */
+    public static void toKafka(String deviceId, byte[] bytes){
+        logger.info("设备[{}]原始数据[{}]写入kafka...", deviceId, CommonUtil.bytesToStr(bytes));
+
+        Map map = new HashMap();
+        map.put("id", deviceId);
+        map.put("timestamp", System.currentTimeMillis());
+        map.put("data", CommonUtil.bytesToStr(bytes));
+
+        KafkaClient kafkaClient = SpringUtil.getBean("kafkaClient");
+        kafkaClient.sendMessage(JacksonUtil.toJson(map));
     }
 }

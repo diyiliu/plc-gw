@@ -2,12 +2,9 @@ package com.tiza.support.task;
 
 import com.tiza.support.cache.ICache;
 import com.tiza.support.model.QueryFrame;
-import com.tiza.support.util.CommonUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
@@ -18,11 +15,6 @@ import java.util.Set;
  */
 
 public class AutoSenderTask implements ITask {
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    public AutoSenderTask() {
-
-    }
 
     public AutoSenderTask(QueryFrame queryFrame, ICache onlineCache) {
         this.queryFrame = queryFrame;
@@ -49,10 +41,6 @@ public class AutoSenderTask implements ITask {
         byteBuf.writeShort(queryFrame.getStart());
         byteBuf.writeShort(queryFrame.getCount());
         byte[] bytes = byteBuf.array();
-
-        logger.info(" 在线终端{}, 下发查询指令, [从站地址:{}, 功能码:{}, 内容:{}]...",
-                onlineCache.getKeys(), queryFrame.getAddress(), queryFrame.getCode(),
-                CommonUtil.bytesToStr(Unpooled.copiedBuffer(bytes, CommonUtil.checkCRC(bytes)).array()));
 
         keys.forEach(e -> {
             ChannelHandlerContext context = (ChannelHandlerContext) onlineCache.get(e);
