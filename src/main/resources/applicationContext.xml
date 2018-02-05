@@ -40,6 +40,6 @@
     <!-- Kafka 客户端 -->
     <bean id="kafkaClient" class="com.tiza.support.client.KafkaClient">
         <constructor-arg name="brokerList" value="${kafka.broker.list}"/>
-        <constructor-arg name="topic" value="${kafka.topic}"/>
+        <constructor-arg name="topic" value="${kafka.topic.rowdata}"/>
     </bean>
 </beans>

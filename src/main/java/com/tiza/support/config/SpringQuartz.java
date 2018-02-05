@@ -44,7 +44,7 @@ public class SpringQuartz {
     /**
      * 刷新数字输出数据
      */
-    @Scheduled(fixedDelay = 1 * 1000 * 60, initialDelay = 5 * 1000)
+    @Scheduled(fixedDelay = 4 * 1000, initialDelay = 1 * 1000)
     public void refreshTaskDigitalOutput() {
         int address = 2;
         int code = 1;
@@ -59,7 +59,7 @@ public class SpringQuartz {
     /**
      * 刷新数字量输入数据
      */
-    @Scheduled(fixedDelay = 1 * 1000 * 60, initialDelay = 10 * 1000)
+    @Scheduled(fixedDelay = 4 * 1000, initialDelay = 2 * 1000)
     public void refreshTaskDigitalInput() {
         int address = 2;
         int code = 2;
@@ -74,7 +74,7 @@ public class SpringQuartz {
     /**
      * 刷新保持寄存器数据
      */
-    @Scheduled(fixedDelay = 1 * 1000 * 60, initialDelay = 15 * 1000)
+    @Scheduled(fixedDelay = 4 * 1000, initialDelay = 3 * 1000)
     public void refreshTaskStorage() {
         int address = 2;
         int code = 3;

@@ -49,7 +49,7 @@ public class DtuDecoder extends ByteToMessageDecoder {
             deviceId = new String(content);
             byte[] bytes = Unpooled.copiedBuffer(new byte[]{b1, b2, b2}, content).array();
             // 写入kafka
-            KafkaClient.toKafka(deviceId, bytes);
+            KafkaClient.toKafka(deviceId, bytes, 1);
 
             if (0x40 == b1) {
                 register(deviceId, attribute, ctx);
@@ -92,7 +92,7 @@ public class DtuDecoder extends ByteToMessageDecoder {
             //logger.info("收到设备[{}]原始数据[{}]...", deviceId, CommonUtil.bytesToStr(bytes));
 
             // 写入kafka
-            KafkaClient.toKafka(deviceId, bytes);
+            KafkaClient.toKafka(deviceId, bytes, 1);
 
             byte[] checkCRC = CommonUtil.checkCRC(content);
             if (crc0 != checkCRC[0] || crc1 != checkCRC[1]) {

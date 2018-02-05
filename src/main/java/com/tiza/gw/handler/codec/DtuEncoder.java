@@ -51,6 +51,6 @@ public class DtuEncoder extends MessageToByteEncoder {
        Attribute attribute = context.channel().attr(AttributeKey.valueOf(Constant.NETTY_DEVICE_ID));
        String deviceId = (String) attribute.get();
 
-        KafkaClient.toKafka(deviceId, bytes);
+        KafkaClient.toKafka(deviceId, bytes, 2);
     }
 }

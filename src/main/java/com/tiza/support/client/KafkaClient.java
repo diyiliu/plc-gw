@@ -39,7 +39,7 @@ public class KafkaClient {
         producer = new Producer(new ProducerConfig(props));
     }
 
-    public void sendMessage(String msg){
+    public void sendMessage(String msg) {
         producer.send(new KeyedMessage(topic, msg));
     }
 
@@ -49,13 +49,15 @@ public class KafkaClient {
      * @param deviceId
      * @param bytes
      */
-    public static void toKafka(String deviceId, byte[] bytes){
-        logger.info("设备[{}]原始数据[{}]写入kafka...", deviceId, CommonUtil.bytesToStr(bytes));
+    public static void toKafka(String deviceId, byte[] bytes, int direction) {
+        logger.info("[{}] 设备[{}]原始数据[{}]写入kafka...",
+                direction == 1 ? "上行" : "下行", deviceId, CommonUtil.bytesToStr(bytes));
 
         Map map = new HashMap();
         map.put("id", deviceId);
         map.put("timestamp", System.currentTimeMillis());
         map.put("data", CommonUtil.bytesToStr(bytes));
+        map.put("flow", direction);
 
         KafkaClient kafkaClient = SpringUtil.getBean("kafkaClient");
         kafkaClient.sendMessage(JacksonUtil.toJson(map));
