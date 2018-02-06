@@ -60,6 +60,7 @@ public class SpringConfig {
         return cmdInitializer;
     }
 
+
     /**
      * 设备注册缓存
      *
@@ -89,6 +90,18 @@ public class SpringConfig {
      */
     @Bean
     public ICache deviceCacheProvider() {
+
+        return new RamCacheProvider();
+    }
+
+
+    /**
+     * 功能集缓存
+     *
+     * @return
+     */
+    @Bean
+    public ICache functionSetCacheProvider() {
 
         return new RamCacheProvider();
     }

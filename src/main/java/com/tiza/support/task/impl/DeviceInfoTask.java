@@ -1,8 +1,9 @@
-package com.tiza.support.task;
+package com.tiza.support.task.impl;
 
 import com.tiza.support.dao.DeviceDao;
 import com.tiza.support.cache.ICache;
 import com.tiza.support.model.DeviceInfo;
+import com.tiza.support.task.ITask;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,10 +22,6 @@ public class DeviceInfoTask implements ITask {
     private ICache deviceCache;
 
     private DeviceDao deviceDao;
-
-    public DeviceInfoTask() {
-
-    }
 
     public DeviceInfoTask(DeviceDao deviceDao, ICache deviceCache) {
         this.deviceDao = deviceDao;

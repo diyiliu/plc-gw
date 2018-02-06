@@ -55,7 +55,7 @@ public class DtuHandler extends ChannelInboundHandlerAdapter {
         int address = byteBuf.readUnsignedByte();
         int code = byteBuf.readUnsignedByte();
 
-        DtuDataProcess dataProcess = (DtuDataProcess) cmdCacheProvider.get(code);
+        DtuDataProcess dataProcess = (DtuDataProcess) cmdCacheProvider.get(0xFF);
         if (dataProcess == null){
             logger.warn("找不到指令[{}]解析器!", CommonUtil.toHex(code));
 

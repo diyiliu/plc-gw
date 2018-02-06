@@ -2,6 +2,7 @@ package com.tiza.support.util;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -395,14 +396,21 @@ public class CommonUtil {
         ScriptEngineManager factory = new ScriptEngineManager();
         ScriptEngine engine = factory.getEngineByName("JavaScript");
 
-        String retVal = "";
+        String retVal = String.valueOf(val);
         if (type.equalsIgnoreCase("hex")) {
+
             retVal = String.format("%02X", val);
-        } else if (type.equalsIgnoreCase("decimal")) {
-            retVal = engine.eval(val + exp).toString();
-        } else {
-            //表达式解析会出现类型问题
-            retVal = engine.eval(val + exp).toString();
+        } else if (type.equalsIgnoreCase("float")) {
+
+            retVal = String.valueOf(Float.intBitsToFloat(val));
+        } else if (StringUtils.isNotEmpty(exp)) {
+            if (type.equalsIgnoreCase("decimal")) {
+
+                retVal = engine.eval(val + exp).toString();
+            } else {
+                //表达式解析会出现类型问题
+                retVal = engine.eval(val + exp).toString();
+            }
         }
 
         return retVal;

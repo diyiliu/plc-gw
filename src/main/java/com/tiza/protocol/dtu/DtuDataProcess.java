@@ -3,14 +3,18 @@ package com.tiza.protocol.dtu;
 import com.tiza.protocol.IDataProcess;
 import com.tiza.support.dao.DeviceDao;
 import com.tiza.support.cache.ICache;
+import com.tiza.support.model.CanPackage;
 import com.tiza.support.model.DeviceInfo;
+import com.tiza.support.model.NodeItem;
 import com.tiza.support.model.header.DtuHeader;
 import com.tiza.support.model.header.Header;
+import com.tiza.support.util.CommonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.script.ScriptException;
 import java.util.*;
 
 /**
@@ -32,6 +36,9 @@ public class DtuDataProcess implements IDataProcess {
     private ICache deviceCacheProvider;
 
     @Resource
+    private ICache functionSetCacheProvider;
+
+    @Resource
     private DeviceDao deviceDao;
 
     @Override
@@ -47,7 +54,16 @@ public class DtuDataProcess implements IDataProcess {
 
     @Override
     public void parse(byte[] content, Header header) {
+        DtuHeader dtuHeader = (DtuHeader) header;
+        CanPackage canPackage = (CanPackage) functionSetCacheProvider.get(String.valueOf(dtuHeader.getCode()));
+        if (canPackage == null){
 
+            logger.warn("未配置的功能集[{}]", dtuHeader.getCode());
+            return;
+        }
+
+        Map paramValues = parsePackage(content, canPackage.getItemList());
+        updateStatus(dtuHeader, paramValues);
     }
 
     @Override
@@ -73,6 +89,34 @@ public class DtuDataProcess implements IDataProcess {
         return map;
     }
 
+    protected Map parsePackage(byte[] content, List<NodeItem> nodeItems) {
+        Map packageValues = new HashMap();
+
+        for (NodeItem item : nodeItems) {
+            try {
+                packageValues.put(item.getField(), parseItem(content, item));
+            } catch (ScriptException e) {
+                logger.error("解析表达式错误：", e);
+            }
+        }
+
+        return packageValues;
+    }
+
+    protected String parseItem(byte[] data, NodeItem item) throws ScriptException {
+
+        String tVal;
+        byte[] val = CommonUtil.byteToByte(data, item.getByteStart(), item.getByteLen(), item.getEndian());
+        int tempVal = CommonUtil.byte2int(val);
+        if (item.isOnlyByte()) {
+            tVal = CommonUtil.parseExp(tempVal, item.getExpression(), item.getType());
+        } else {
+            int biteVal = CommonUtil.getBits(tempVal, item.getBitStart(), item.getBitLen());
+            tVal = CommonUtil.parseExp(biteVal, item.getExpression(), item.getType());
+        }
+
+        return tVal;
+    }
 
 
 
