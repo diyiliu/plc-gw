@@ -24,10 +24,12 @@ public class KafkaClient {
     private static Logger logger = LoggerFactory.getLogger(KafkaClient.class);
 
     private final Producer<Integer, String> producer;
-    private String topic;
+    private final String rowDataTopic;
+    private String parseDataTopic;
 
-    public KafkaClient(String brokerList, String topic) {
-        this.topic = topic;
+    public KafkaClient(String brokerList, String rowDataTopic, String parseDataTopic) {
+        this.rowDataTopic = rowDataTopic;
+        this.parseDataTopic = parseDataTopic;
 
         Properties props = new Properties();
         props.put("metadata.broker.list", brokerList);
@@ -39,8 +41,16 @@ public class KafkaClient {
         producer = new Producer(new ProducerConfig(props));
     }
 
-    public void sendMessage(String msg) {
+    public void sendMessage(String topic, String msg) {
         producer.send(new KeyedMessage(topic, msg));
+    }
+
+    public String getRowDataTopic() {
+        return rowDataTopic;
+    }
+
+    public String getParseDataTopic() {
+        return parseDataTopic;
     }
 
     /**
@@ -60,6 +70,24 @@ public class KafkaClient {
         map.put("flow", direction);
 
         KafkaClient kafkaClient = SpringUtil.getBean("kafkaClient");
-        kafkaClient.sendMessage(JacksonUtil.toJson(map));
+        kafkaClient.sendMessage(kafkaClient.getRowDataTopic(), JacksonUtil.toJson(map));
+    }
+
+    /**
+     * 存入kafka解析数据
+     *
+     * @param id
+     * @param paramValues
+     */
+    public static void toKafka(long id, Map paramValues){
+        logger.info("设备[{}]解析数据写入kafka...", id);
+
+        Map map = new HashMap();
+        map.put("id", id);
+        map.put("timestamp", System.currentTimeMillis());
+        map.put("metrics", JacksonUtil.toJson(paramValues));
+
+        KafkaClient kafkaClient = SpringUtil.getBean("kafkaClient");
+        kafkaClient.sendMessage(kafkaClient.getParseDataTopic(), JacksonUtil.toJson(map));
     }
 }

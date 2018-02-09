@@ -9,6 +9,7 @@ public class DeviceInfo {
 
     private int id;
     private String dtuId;
+    private String softVersion;
 
     public int getId() {
         return id;
@@ -24,5 +25,13 @@ public class DeviceInfo {
 
     public void setDtuId(String dtuId) {
         this.dtuId = dtuId;
+    }
+
+    public String getSoftVersion() {
+        return softVersion;
+    }
+
+    public void setSoftVersion(String softVersion) {
+        this.softVersion = softVersion;
     }
 }

@@ -2,6 +2,7 @@ package com.tiza.support.config;
 
 import com.tiza.support.dao.DeviceDao;
 import com.tiza.support.cache.ICache;
+import com.tiza.support.dao.FunctionSetDao;
 import com.tiza.support.model.QueryFrame;
 import com.tiza.support.task.impl.AutoSenderTask;
 import com.tiza.support.task.impl.DeviceInfoTask;
@@ -37,18 +38,20 @@ public class SpringQuartz {
     @Resource
     private DeviceDao deviceDao;
 
+    @Resource
+    private FunctionSetDao functionSetDao;
+
 
     /**
      * 刷新功能集列表
      *
      * @return
      */
-    @Bean
-    public ITask functionSetTask(){
-        ITask task = new FunctionSetTask(functionSetCacheProvider);
-        task.execute();
+    @Scheduled(fixedDelay = 30 * 1000 * 60, initialDelay = 5 * 1000)
+    public void functionSetTask() {
 
-        return task;
+        ITask task = new FunctionSetTask(functionSetDao, functionSetCacheProvider);
+        task.execute();
     }
 
 

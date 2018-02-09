@@ -1,21 +1,23 @@
 package com.tiza.support.task.impl;
 
 import com.tiza.support.cache.ICache;
+import com.tiza.support.dao.FunctionSetDao;
 import com.tiza.support.model.CanPackage;
+import com.tiza.support.model.FunctionInfo;
 import com.tiza.support.model.NodeItem;
 import com.tiza.support.task.ITask;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.map.HashedMap;
 import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.DocumentHelper;
 import org.dom4j.Node;
-import org.dom4j.io.SAXReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Description: FunctionSetTask
@@ -27,27 +29,54 @@ public class FunctionSetTask implements ITask {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private ICache functionSetCache;
+    private FunctionSetDao functionSetDao;
 
-    public FunctionSetTask(ICache functionSetCache) {
+    public FunctionSetTask(FunctionSetDao functionSetDao, ICache functionSetCache) {
+        this.functionSetDao = functionSetDao;
         this.functionSetCache = functionSetCache;
     }
 
     @Override
     public void execute() {
-        String filePath = "plc-functionSet.xml";
-        Resource resource = new ClassPathResource(filePath);
-
         try {
-            SAXReader saxReader = new SAXReader();
-            Document document = saxReader.read(resource.getFile());
+            List<FunctionInfo> infoList = functionSetDao.selectFunctionInfo();
+            for (FunctionInfo info : infoList) {
+                String functionXml = info.getFunctionXml();
 
-            dealCan(document);
+                Document document = DocumentHelper.parseText(functionXml);
+                Map canMap = dealCan(document);
+                info.setCanPackages(canMap);
+            }
+
+            refresh(infoList, functionSetCache);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void dealCan(Document document) {
+    private void refresh(List<FunctionInfo> infoList, ICache functionCache) {
+        if (infoList == null || infoList.size() < 1){
+            logger.warn("无功能集!");
+            return;
+        }
+
+        Set oldKeys = functionCache.getKeys();
+        Set tempKeys = new HashSet(infoList.size());
+
+        for (FunctionInfo info : infoList) {
+            functionCache.put(info.getSoftVersion(), info);
+            tempKeys.add(info.getSoftVersion());
+        }
+
+        Collection subKeys = CollectionUtils.subtract(oldKeys, tempKeys);
+        for (Iterator iterator = subKeys.iterator(); iterator.hasNext();){
+            String key = (String) iterator.next();
+            functionCache.remove(key);
+        }
+    }
+
+
+    private Map<String, CanPackage> dealCan(Document document) {
         List<Node> rootPackageNodes = document.selectNodes("modbus/read/address");
 
         Map<String, CanPackage> canPackages = new HashedMap();
@@ -56,7 +85,7 @@ public class FunctionSetTask implements ITask {
             canPackages.put(canPackage.getPackageId(), canPackage);
         }
 
-        functionSetCache.put(canPackages);
+        return canPackages;
     }
 
     private CanPackage dealPackage(Node packageNode) {
@@ -86,8 +115,8 @@ public class FunctionSetTask implements ITask {
             String nameKey = itemNode.selectSingleNode("tag").getText();
 
             String field = nameKey;
-            Node fieldNode =  itemNode.selectSingleNode("field");
-            if (fieldNode != null){
+            Node fieldNode = itemNode.selectSingleNode("field");
+            if (fieldNode != null) {
                 field = fieldNode.getText();
             }
 
@@ -113,7 +142,7 @@ public class FunctionSetTask implements ITask {
             }
 
             // 数值表达式
-            if (expNode != null){
+            if (expNode != null) {
                 itemBean.setExpression(expNode.getText());
             }
 

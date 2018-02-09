@@ -16,12 +16,13 @@ import java.util.List;
 public class DeviceDao extends BaseDao{
 
     public List<DeviceInfo> selectDeviceInfo() {
-        String sql = "SELECT t.Id, t.DtuId FROM equipment t";
+        String sql = "SELECT t.Id, t.DtuId, t.PlcVersionId FROM equipment t";
 
         return jdbcTemplate.query(sql, (ResultSet rs, int rowNum) -> {
             DeviceInfo deviceInfo = new DeviceInfo();
             deviceInfo.setId(rs.getInt("id"));
             deviceInfo.setDtuId(rs.getString("dtuId"));
+            deviceInfo.setSoftVersion(rs.getString("plcVersionId"));
 
             return deviceInfo;
         });

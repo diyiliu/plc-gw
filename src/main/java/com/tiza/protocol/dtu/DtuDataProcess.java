@@ -1,10 +1,12 @@
 package com.tiza.protocol.dtu;
 
 import com.tiza.protocol.IDataProcess;
-import com.tiza.support.dao.DeviceDao;
 import com.tiza.support.cache.ICache;
+import com.tiza.support.client.KafkaClient;
+import com.tiza.support.dao.DeviceDao;
 import com.tiza.support.model.CanPackage;
 import com.tiza.support.model.DeviceInfo;
+import com.tiza.support.model.FunctionInfo;
 import com.tiza.support.model.NodeItem;
 import com.tiza.support.model.header.DtuHeader;
 import com.tiza.support.model.header.Header;
@@ -55,10 +57,26 @@ public class DtuDataProcess implements IDataProcess {
     @Override
     public void parse(byte[] content, Header header) {
         DtuHeader dtuHeader = (DtuHeader) header;
-        CanPackage canPackage = (CanPackage) functionSetCacheProvider.get(String.valueOf(dtuHeader.getCode()));
+        String deviceId = dtuHeader.getDeviceId();
+        if (!deviceCacheProvider.containsKey(deviceId)){
+
+            logger.warn("设备不存在[{}]!", deviceId);
+            return;
+        }
+
+        DeviceInfo deviceInfo = (DeviceInfo) deviceCacheProvider.get(deviceId);
+        if (!functionSetCacheProvider.containsKey(deviceInfo.getSoftVersion())){
+
+            logger.warn("未配置的功能集[{}]", deviceInfo.getSoftVersion());
+            return;
+        }
+
+        String canCode = String.valueOf(dtuHeader.getCode());
+        FunctionInfo functionInfo = (FunctionInfo) functionSetCacheProvider.get(deviceInfo.getSoftVersion());
+        CanPackage canPackage = functionInfo.getCanPackages().get(canCode);
         if (canPackage == null){
 
-            logger.warn("未配置的功能集[{}]", dtuHeader.getCode());
+            logger.warn("未配置的功能码[{}]", canCode);
             return;
         }
 
@@ -119,7 +137,6 @@ public class DtuDataProcess implements IDataProcess {
     }
 
 
-
     public void updateStatus(DtuHeader dtuHeader, Map paramValues){
         String deviceId = dtuHeader.getDeviceId();
         if (!deviceCacheProvider.containsKey(deviceId)){
@@ -145,5 +162,8 @@ public class DtuDataProcess implements IDataProcess {
         logger.info("更新设备[{}]状态...", deviceId);
         String sql = sqlBuilder.substring(0, sqlBuilder.length() - 2) + " WHERE equipmentId=" + deviceInfo.getId();
         deviceDao.update(sql, list.toArray());
+
+        // 写入kafka
+        KafkaClient.toKafka(deviceInfo.getId(), paramValues);
     }
 }

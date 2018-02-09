@@ -63,11 +63,11 @@ public class FunctionInfo {
         this.functionXml = functionXml;
     }
 
-    public Map getCanPackages() {
+    public Map<String, CanPackage> getCanPackages() {
         return canPackages;
     }
 
-    public void setCanPackages(Map canPackages) {
+    public void setCanPackages(Map<String, CanPackage> canPackages) {
         this.canPackages = canPackages;
     }
 
