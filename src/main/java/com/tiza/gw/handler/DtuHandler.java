@@ -3,6 +3,7 @@ package com.tiza.gw.handler;
 import com.tiza.protocol.dtu.DtuDataProcess;
 import com.tiza.support.cache.ICache;
 import com.tiza.support.config.Constant;
+import com.tiza.support.model.SendMsg;
 import com.tiza.support.model.header.DtuHeader;
 import com.tiza.support.util.CommonUtil;
 import com.tiza.support.util.SpringUtil;
@@ -49,12 +50,22 @@ public class DtuHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) {
         String deviceId = (String) attribute.get();
-        ICache cmdCacheProvider = SpringUtil.getBean("dtuCMDCacheProvider");
 
         ByteBuf byteBuf = (ByteBuf) msg;
         int address = byteBuf.readUnsignedByte();
         int code = byteBuf.readUnsignedByte();
 
+        // 判断是否收到指令应答
+        ICache sendMsgCache = SpringUtil.getBean("sendMsgCacheProvider");
+        if (sendMsgCache.containsKey(deviceId)){
+            SendMsg sendMsg = (SendMsg) sendMsgCache.get(deviceId);
+
+            if (code == sendMsg.getCmd()){
+                sendMsgCache.remove(deviceId);
+            }
+        }
+
+        ICache cmdCacheProvider = SpringUtil.getBean("dtuCMDCacheProvider");
         DtuDataProcess dataProcess = (DtuDataProcess) cmdCacheProvider.get(0xFF);
         if (dataProcess == null){
             logger.warn("找不到指令[{}]解析器!", CommonUtil.toHex(code));

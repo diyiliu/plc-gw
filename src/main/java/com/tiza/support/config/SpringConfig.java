@@ -84,6 +84,17 @@ public class SpringConfig {
     }
 
     /**
+     * 下发缓存
+     *
+     * @return
+     */
+    @Bean
+    public ICache sendMsgCacheProvider() {
+
+        return new RamCacheProvider();
+    }
+
+    /**
      * 数据库设备缓存
      *
      * @return
