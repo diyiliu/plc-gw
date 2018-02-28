@@ -15,6 +15,8 @@ public class CanPackage {
     private int length;
     private List<NodeItem> itemList;
 
+    private int period;
+
     public CanPackage() {
     }
 
@@ -45,5 +47,13 @@ public class CanPackage {
 
     public void setItemList(List<NodeItem> itemList) {
         this.itemList = itemList;
+    }
+
+    public int getPeriod() {
+        return period;
+    }
+
+    public void setPeriod(int period) {
+        this.period = period;
     }
 }

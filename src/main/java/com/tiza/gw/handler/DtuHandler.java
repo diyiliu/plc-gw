@@ -57,20 +57,22 @@ public class DtuHandler extends ChannelInboundHandlerAdapter {
 
         // 判断是否收到指令应答
         ICache sendMsgCache = SpringUtil.getBean("sendMsgCacheProvider");
-        if (sendMsgCache.containsKey(deviceId)){
+        if (sendMsgCache.containsKey(deviceId)) {
             SendMsg sendMsg = (SendMsg) sendMsgCache.get(deviceId);
 
-            if (code == sendMsg.getCmd()){
-                sendMsgCache.remove(deviceId);
+            synchronized (sendMsg) {
+                if (code == sendMsg.getCmd()) {
+                    sendMsgCache.remove(deviceId);
+                }
             }
         }
 
         ICache cmdCacheProvider = SpringUtil.getBean("dtuCMDCacheProvider");
         DtuDataProcess dataProcess = (DtuDataProcess) cmdCacheProvider.get(0xFF);
-        if (dataProcess == null){
+        if (dataProcess == null) {
             logger.warn("找不到指令[{}]解析器!", CommonUtil.toHex(code));
 
-            return ;
+            return;
         }
 
         int length = byteBuf.readUnsignedByte();

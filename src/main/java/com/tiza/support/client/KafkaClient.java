@@ -60,8 +60,7 @@ public class KafkaClient {
      * @param bytes
      */
     public static void toKafka(String deviceId, byte[] bytes, int direction) {
-        logger.info("[{}] 设备[{}]原始数据[{}]写入kafka...",
-                direction == 1 ? "上行" : "下行", deviceId, CommonUtil.bytesToStr(bytes));
+        //logger.info("[{}] 设备[{}]原始数据[{}]写入kafka...", direction == 1 ? "上行" : "下行", deviceId, CommonUtil.bytesToStr(bytes));
 
         Map map = new HashMap();
         map.put("id", deviceId);
@@ -79,8 +78,8 @@ public class KafkaClient {
      * @param id
      * @param paramValues
      */
-    public static void toKafka(long id, Map paramValues){
-        logger.info("设备[{}]解析数据写入kafka...", id);
+    public static void toKafka(long id, Map paramValues) {
+        //logger.info("设备[{}]解析数据写入kafka...", id);
 
         Map map = new HashMap();
         map.put("id", id);

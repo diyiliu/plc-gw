@@ -113,7 +113,7 @@ public class DtuDataProcess implements IDataProcess {
         for (NodeItem item : nodeItems) {
             try {
                 packageValues.put(item.getField(), parseItem(content, item));
-            } catch (ScriptException e) {
+            } catch (Exception e) {
                 logger.error("解析表达式错误：", e);
             }
         }

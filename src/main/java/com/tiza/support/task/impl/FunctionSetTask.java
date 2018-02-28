@@ -9,13 +9,10 @@ import com.tiza.support.task.ITask;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.map.HashedMap;
 import org.dom4j.Document;
-import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 
 import java.util.*;
 
@@ -38,6 +35,7 @@ public class FunctionSetTask implements ITask {
 
     @Override
     public void execute() {
+        logger.info("刷新功能集列表...");
         try {
             List<FunctionInfo> infoList = functionSetDao.selectFunctionInfo();
             for (FunctionInfo info : infoList) {
@@ -91,8 +89,10 @@ public class FunctionSetTask implements ITask {
     private CanPackage dealPackage(Node packageNode) {
         String packageId = packageNode.valueOf("@function");
         int length = Integer.parseInt(packageNode.valueOf("@length"));
+        int period = Integer.parseInt(packageNode.valueOf("@frequency"));
 
         CanPackage canPackage = new CanPackage(packageId, length);
+        canPackage.setPeriod(period);
         List<Node> nodeItems = packageNode.selectNodes("point");
 
         if (nodeItems != null && nodeItems.size() > 0) {

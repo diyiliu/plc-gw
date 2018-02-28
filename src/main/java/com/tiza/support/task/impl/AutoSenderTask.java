@@ -19,7 +19,7 @@ import java.util.Set;
  * Update: 2018-01-29 10:45
  */
 
-public class AutoSenderTask implements ITask {
+public class AutoSenderTask implements ITask, Runnable {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public AutoSenderTask(QueryFrame queryFrame, ICache onlineCache) {
@@ -27,16 +27,27 @@ public class AutoSenderTask implements ITask {
         this.onlineCache = onlineCache;
     }
 
-    /** 发送数据帧 */
+    /**
+     * 发送数据帧
+     */
     private QueryFrame queryFrame;
 
-    /** 在线设备 */
+    /**
+     * 在线设备
+     */
     private ICache onlineCache;
+
+
+    @Override
+    public void run() {
+
+        execute();
+    }
 
     @Override
     public void execute() {
         Set keys = onlineCache.getKeys();
-        if (keys.size() < 1){
+        if (keys.size() < 1) {
 
             return;
         }
@@ -51,14 +62,19 @@ public class AutoSenderTask implements ITask {
         ICache sendMsgCache = SpringUtil.getBean("sendMsgCacheProvider");
         keys.forEach(e -> {
             // 如果有下发指令没回复，则不下发本次指令
-            if (sendMsgCache.containsKey(e)){
+            if (sendMsgCache.containsKey(e)) {
                 logger.warn("下行指令尚未响应，取消终端[{}]本次指令[{}]下发...", e, queryFrame.getCode());
 
                 SendMsg sendMsg = (SendMsg) sendMsgCache.get(e);
-                if (sendMsg.getTime() > 2){
-                    sendMsgCache.remove(e);
+                synchronized (sendMsg) {
+                    if (sendMsg.getTime() > 2) {
+
+                        sendMsgCache.remove(e);
+                    }
                 }
-            }else {
+            } else {
+                logger.info("终端[{}]指令[{}]下发...", e, queryFrame.getCode());
+
                 ChannelHandlerContext context = (ChannelHandlerContext) onlineCache.get(e);
                 context.writeAndFlush(Unpooled.copiedBuffer(bytes));
 
