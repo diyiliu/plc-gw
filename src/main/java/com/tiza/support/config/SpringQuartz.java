@@ -45,7 +45,7 @@ public class SpringQuartz {
      *
      * @return
      */
-    @Scheduled(fixedDelay = 30 * 60 * 1000, initialDelay = 5 * 1000)
+    @Scheduled(fixedDelay = 15 * 60 * 1000, initialDelay = 5 * 1000)
     public void functionSetTask() {
 
         ITask task = new FunctionSetTask(functionSetDao, functionSetCacheProvider);
@@ -69,7 +69,7 @@ public class SpringQuartz {
     /**
      * 刷新设备列表
      */
-    @Scheduled(fixedDelay = 15 * 60 * 1000, initialDelay = 3 * 1000)
+    @Scheduled(fixedDelay = 10 * 60 * 1000, initialDelay = 3 * 1000)
     public void refreshTaskDeviceInfo() {
 
         ITask task = new DeviceInfoTask(deviceDao, deviceCacheProvider);
