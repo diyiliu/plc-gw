@@ -75,7 +75,7 @@ public class FunctionSetTask implements ITask {
 
 
     private Map<String, CanPackage> dealCan(Document document) {
-        List<Node> rootPackageNodes = document.selectNodes("modbus/read/address");
+        List<Node> rootPackageNodes = document.selectNodes("modbus/address");
 
         Map<String, CanPackage> canPackages = new HashedMap();
         for (Node node : rootPackageNodes) {
